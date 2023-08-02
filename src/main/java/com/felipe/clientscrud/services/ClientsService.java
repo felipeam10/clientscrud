@@ -43,6 +43,11 @@ public class ClientsService {
         return new ClientsDTO(entity);
     }
 
+    @Transactional
+    public void delete(Long id) {
+        repository.deleteById(id);
+    }
+
     private void copyDtoToEntity(ClientsDTO dto, Clients entity) {
         entity.setName(dto.getName());
         entity.setCpf(dto.getCpf());
