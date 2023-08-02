@@ -4,6 +4,8 @@ import com.felipe.clientscrud.dto.ClientsDTO;
 import com.felipe.clientscrud.entities.Clients;
 import com.felipe.clientscrud.repository.ClientsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,5 +19,11 @@ public class ClientsService {
     public ClientsDTO findById(Long id) {
         Clients clients = repository.findById(id).get();
         return new ClientsDTO(clients);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ClientsDTO> findAll(Pageable pageable) {
+        Page<Clients> result = repository.findAll(pageable);
+        return result.map(x -> new ClientsDTO(x));
     }
 }
