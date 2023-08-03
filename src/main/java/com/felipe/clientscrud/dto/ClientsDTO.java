@@ -1,16 +1,22 @@
 package com.felipe.clientscrud.dto;
 
 import com.felipe.clientscrud.entities.Clients;
+import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
 
 public class ClientsDTO {
 
     private Long id;
+    @Size(min = 3, max = 80, message = "Nome precisa ter de 03 a 80 caracteres")
+    @NotBlank(message = "Campo requerido")
     private String name;
+    @NotBlank(message = "Campo requerido")
     private String cpf;
+    @Positive(message = "Renda deve ser positiva")
     private Double income;
     private LocalDate birthDate;
+    @PositiveOrZero(message = "Quantidade de filhos zero ou mais")
     private Integer children;
 
     public ClientsDTO(){}
