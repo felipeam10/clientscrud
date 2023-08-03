@@ -3,6 +3,7 @@ package com.felipe.clientscrud.services;
 import com.felipe.clientscrud.dto.ClientsDTO;
 import com.felipe.clientscrud.entities.Clients;
 import com.felipe.clientscrud.repository.ClientsRepository;
+import com.felipe.clientscrud.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +18,8 @@ public class ClientsService {
 
     @Transactional(readOnly = true)
     public ClientsDTO findById(Long id) {
-        Clients clients = repository.findById(id).get();
+        Clients clients = repository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Recurso não encontrado"));
         return new ClientsDTO(clients);
     }
 
