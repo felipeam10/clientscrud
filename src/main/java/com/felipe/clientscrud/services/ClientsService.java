@@ -3,11 +3,15 @@ package com.felipe.clientscrud.services;
 import com.felipe.clientscrud.dto.ClientsDTO;
 import com.felipe.clientscrud.entities.Clients;
 import com.felipe.clientscrud.repository.ClientsRepository;
+import com.felipe.clientscrud.services.exceptions.DataBaseException;
 import com.felipe.clientscrud.services.exceptions.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -39,15 +43,28 @@ public class ClientsService {
 
     @Transactional
     public ClientsDTO update(Long id, ClientsDTO dto) {
-        Clients entity = repository.getReferenceById(id);
-        copyDtoToEntity(dto, entity);
-        entity = repository.save(entity);
-        return new ClientsDTO(entity);
+        try {
+            Clients entity = repository.getReferenceById(id);
+            copyDtoToEntity(dto, entity);
+            entity = repository.save(entity);
+            return new ClientsDTO(entity);
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundException("Recurso não encontrado");
+        }
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void delete(Long id) {
         repository.deleteById(id);
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Recurso não encontrado");
+        }
+        try {
+            repository.deleteById(id);
+        }
+        catch (DataIntegrityViolationException e) {
+            throw new DataBaseException("Falha de integridade referencial");
+        }
     }
 
     private void copyDtoToEntity(ClientsDTO dto, Clients entity) {
